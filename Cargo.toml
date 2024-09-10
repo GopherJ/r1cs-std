@@ -77,17 +77,22 @@ debug = true
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(ci)'] }
 
 [patch.crates-io]
-ark-ff = { git = "https://github.com/arkworks-rs/algebra/" }
-ark-ec = { git = "https://github.com/arkworks-rs/algebra/" }
-ark-poly = { git = "https://github.com/arkworks-rs/algebra/" }
-ark-serialize = { git = "https://github.com/arkworks-rs/algebra/" }
-ark-test-curves = { git = "https://github.com/arkworks-rs/algebra/" }
-ark-bn254 = { git = "https://github.com/arkworks-rs/curves/" }
-ark-bls12-377 = { git = "https://github.com/arkworks-rs/curves/" }
-ark-bls12-381 = { git = "https://github.com/arkworks-rs/curves/" }
-ark-mnt4-298 = { git = "https://github.com/arkworks-rs/curves/" }
-ark-mnt4-753 = { git = "https://github.com/arkworks-rs/curves/" }
-ark-mnt6-298 = { git = "https://github.com/arkworks-rs/curves/" }
-ark-mnt6-753 = { git = "https://github.com/arkworks-rs/curves/" }
-ark-pallas = { git = "https://github.com/arkworks-rs/curves/" }
-ark-std = { git = "https://github.com/arkworks-rs/std/" }
+ark-test-curves = { path = "../ark-algebra/test-curves" }
+ark-r1cs-std = { path = "../ark-r1cs-std" }
+ark-ff = { path = "../ark-algebra/ff" }
+ark-ec = { path = "../ark-algebra/ec" }
+ark-serialize = { path = "../ark-algebra/serialize" }
+ark-std = { path = "../ark-std" }
+ark-bls12-381  = { path = "../ark-algebra/curves/bls12_381" }
+ark-bn254 = { path = "../ark-algebra/curves/bn254" }
+ark-bls12-377 = {  path = "../ark-algebra/curves/bls12_377" }
+ark-mnt4-298 = { path = "../ark-algebra/curves/mnt4_298" }
+ark-mnt4-753 = { path = "../ark-algebra/curves/mnt4_753" }
+ark-mnt6-298 = {  path = "../ark-algebra/curves/mnt6_298" }
+ark-mnt6-753 = { path = "../ark-algebra/curves/mnt6_753" }
+ark-pallas = { path = "../ark-algebra/curves/pallas" }
+ark-groth16 = { path = "../ark-groth16" }
+ark-snark = { path = "../ark-snark/snark" }
+ark-poly = { path = "../ark-algebra/poly" }
+ark-relations = {  path = "../ark-snark/relations" }
+ark-crypto-primitives = { path = "../ark-crypto-primitives/crypto-primitives" }

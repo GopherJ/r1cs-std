@@ -515,12 +515,13 @@ where
         // zero if `self` was zero. However, we also want to make sure that generated
         // constraints are satisfiable in both cases.
         //
-        // In particular, using non-sensible values for `x` and `y` in zero-case may cause
-        // `unchecked` operations to generate constraints that can never be satisfied, depending
-        // on the curve equation coefficients.
+        // In particular, using non-sensible values for `x` and `y` in zero-case may
+        // cause `unchecked` operations to generate constraints that can never
+        // be satisfied, depending on the curve equation coefficients.
         //
-        // The safest approach is to use coordinates of some point from the curve, thus not
-        // violating assumptions of `NonZeroAffine`. For instance, generator point.
+        // The safest approach is to use coordinates of some point from the curve, thus
+        // not violating assumptions of `NonZeroAffine`. For instance, generator
+        // point.
         let x = infinity.select(&F::constant(P::GENERATOR.x), &x)?;
         let y = infinity.select(&F::constant(P::GENERATOR.y), &y)?;
         let non_zero_self = NonZeroAffineVar::new(x, y);
@@ -1024,6 +1025,56 @@ mod test_sw_curve {
         cs.is_satisfied()
     }
 
+    fn random_point_to_affine_satisfied<G>() -> Result<bool>
+    where
+        G: CurveGroup,
+        G::BaseField: PrimeField,
+        G::Config: SWCurveConfig,
+    {
+        let mut rng = ark_std::test_rng();
+
+        let cs = ConstraintSystem::new_ref();
+        let point_proj = Projective::<G::Config>::rand(&mut rng);
+        let point_affine = point_proj.into_affine();
+
+        // Case 1: KO
+        let point_proj_var =
+            ProjectiveVar::<G::Config, FpVar<G::BaseField>>::new(
+            FpVar::new_witness(cs.clone(), || Ok(point_proj.x.clone())).unwrap(),
+            FpVar::new_witness(cs.clone(), || Ok(point_proj.y.clone())).unwrap(),
+            FpVar::new_witness(cs.clone(), || Ok(point_proj.z.clone())).unwrap()
+        );
+        let point_affine_var = point_proj_var.to_affine()?;
+
+        // Case 2: OK
+        // let point_proj_var =
+        //     ProjectiveVar::<G::Config, FpVar<G::BaseField>>::new_witness(cs.clone(), || {
+        //         Ok(point_proj)
+        //     })?;
+        // let point_affine_var = point_proj_var.to_affine()?;
+
+        // Case 3: OK
+        // let point_proj_var =
+        //     ProjectiveVar::<G::Config, FpVar<G::BaseField>>::new_input(cs.clone(), || {
+        //         Ok(point_proj)
+        //     })?;
+        // let point_affine_var = point_proj_var.to_affine()?;
+
+        // Case 4: OK
+        // let point_proj_var =
+        //     ProjectiveVar::<G::Config, FpVar<G::BaseField>>::new_constant(cs.clone(), point_proj)?;
+        // let point_affine_var = point_proj_var.to_affine()?;
+
+        point_affine_var
+            .x
+            .enforce_equal(&FpVar::new_constant(cs.clone(), point_affine.x)?)?;
+        point_affine_var
+            .y
+            .enforce_equal(&FpVar::new_constant(cs.clone(), point_affine.y)?)?;
+
+        cs.is_satisfied()
+    }
+
     #[test]
     fn test_zero_point_scalar_mul() {
         assert!(zero_point_scalar_mul_satisfied::<ark_bls12_381::G1Projective>().unwrap());
@@ -1031,5 +1082,14 @@ mod test_sw_curve {
         assert!(zero_point_scalar_mul_satisfied::<ark_mnt4_298::G1Projective>().unwrap());
         assert!(zero_point_scalar_mul_satisfied::<ark_mnt6_298::G1Projective>().unwrap());
         assert!(zero_point_scalar_mul_satisfied::<ark_bn254::G1Projective>().unwrap());
+    }
+
+    #[test]
+    fn test_random_point_to_affine() {
+        assert!(random_point_to_affine_satisfied::<ark_bls12_381::G1Projective>().unwrap());
+        assert!(random_point_to_affine_satisfied::<ark_pallas::Projective>().unwrap());
+        assert!(random_point_to_affine_satisfied::<ark_mnt4_298::G1Projective>().unwrap());
+        assert!(random_point_to_affine_satisfied::<ark_mnt6_298::G1Projective>().unwrap());
+        assert!(random_point_to_affine_satisfied::<ark_bn254::G1Projective>().unwrap());
     }
 }
